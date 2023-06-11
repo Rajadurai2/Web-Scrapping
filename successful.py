@@ -101,6 +101,28 @@ def start(url):
         for i in preview_obj:
             if '(Playing XI)'.casefold() in i.text.casefold() and (team in i.text or short_name(team) in i.text):
                 return i.get_text()
+    def get_moth(url):
+        cricbuzz_highlights_url=url
+        cricbuzz_highlights_url=cricbuzz_highlights_url.replace('cricket-full-commentary','cricket-scores')
+        cricbuzz_highlights_url
+        page=requests.get(cricbuzz_highlights_url)
+        soup=BeautifulSoup(page.content,'html.parser')
+        try: 
+            win=soup.find('div',{'class':'cb-col cb-col-100 cb-min-stts cb-text-complete'}).text
+            #cb-col cb-col-100 cb-mini-col cb-min-comp ng-scope
+            #cb-link-undrln ng-binding
+            a=soup.find('span',{'class':'cb-text-gray cb-font-12'})
+            try:
+                man_of_the_match=a.next_sibling.next_sibling.next_sibling.text
+            except:
+                man_of_the_match=None
+        except:
+            win = None
+            man_of_the_match=None
+        return win,man_of_the_match
+
+    winner,playe_of_the_match=get_moth(url=url)
+
 
 
     link_text=[]
@@ -165,22 +187,25 @@ def start(url):
     match_commentary_df['venue']=venue
     match_commentary_df['date']=date
     match_commentary_df['toss']=find_toss()
+    match_commentary_df['winner']=winner
+    match_commentary_df['player_of_the_match']=playe_of_the_match
     match_commentary_df
 
     #csv=match_commentary_df.to_csv(f'{match_name}.csv',index= False)
-    match_commentary_df.to_csv(os.path.join('files/2022',f'{match_name}.csv'),index=False)
+    match_commentary_df.to_csv(os.path.join('files/2021',f'{match_name}.csv'),index=False)
     #df=pd.read_csv(f'{match_name}.csv')
 
 #start('https://www.cricbuzz.com/cricket-full-commentary/66169/gt-vs-csk-1st-match-indian-premier-league-2023')
 
 match_links=[]
-with open(os.path.join('match_links','2022_season_match_links.txt')) as f1:
+with open(os.path.join('match_links','2021_season_match_links.txt')) as f1:
     for line in f1:
         match_links.append(line.strip())
-match_links=match_links[68:]
+#match_links=match_links[68:]
 #match_links=['https://www.cricbuzz.com/cricket-full-commentary/66169/gt-vs-csk-1st-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66173/pbks-vs-kkr-2nd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66176/lsg-vs-dc-3rd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66183/srh-vs-rr-4th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66190/rcb-vs-mi-5th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66197/csk-vs-lsg-6th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66204/dc-vs-gt-7th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66208/rr-vs-pbks-8th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66211/kkr-vs-rcb-9th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66215/lsg-vs-srh-10th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66218/rr-vs-dc-11th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66225/mi-vs-csk-12th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66232/gt-vs-kkr-13th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66236/srh-vs-pbks-14th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66239/rcb-vs-lsg-15th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66243/dc-vs-mi-16th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66250/csk-vs-rr-17th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66253/pbks-vs-gt-18th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66257/kkr-vs-srh-19th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66260/rcb-vs-dc-20th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66264/lsg-vs-pbks-21st-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66271/mi-vs-kkr-22nd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66274/gt-vs-rr-23rd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66278/rcb-vs-csk-24th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66285/srh-vs-mi-25th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66292/rr-vs-lsg-26th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66313/pbks-vs-rcb-27th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66330/dc-vs-kkr-28th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66351/csk-vs-srh-29th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66369/lsg-vs-gt-30th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66404/mi-vs-pbks-31st-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66421/rcb-vs-rr-32nd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66435/kkr-vs-csk-33rd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66449/srh-vs-dc-34th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66470/gt-vs-mi-35th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66484/rcb-vs-kkr-36th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66502/rr-vs-csk-37th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66512/pbks-vs-lsg-38th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66519/kkr-vs-gt-39th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66526/dc-vs-srh-40th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66288/csk-vs-pbks-41st-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66299/mi-vs-rr-42nd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66306/lsg-vs-rcb-43rd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66320/gt-vs-dc-44th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66337/lsg-vs-csk-45th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66327/pbks-vs-mi-46th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66344/srh-vs-kkr-47th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66348/rr-vs-gt-48th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66355/csk-vs-mi-49th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66358/dc-vs-rcb-50th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66365/gt-vs-lsg-51st-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66376/rr-vs-srh-52nd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66379/kkr-vs-pbks-53rd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66386/mi-vs-rcb-54th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66393/csk-vs-dc-55th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66397/kkr-vs-rr-56th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66411/mi-vs-gt-57th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66414/srh-vs-lsg-58th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66428/dc-vs-pbks-59th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66432/rr-vs-rcb-60th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66442/csk-vs-kkr-61st-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66446/gt-vs-srh-62nd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66453/lsg-vs-mi-63rd-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66460/pbks-vs-dc-64th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66467/srh-vs-rcb-65th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66477/pbks-vs-rr-66th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66481/dc-vs-csk-67th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66488/kkr-vs-lsg-68th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66495/mi-vs-srh-69th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/66505/rcb-vs-gt-70th-match-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/69557/gt-vs-csk-qualifier-1-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/69561/lsg-vs-mi-eliminator-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/69568/gt-vs-mi-qualifier-2-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/69575/csk-vs-gt-final-indian-premier-league-2023', 'https://www.cricbuzz.com/cricket-full-commentary/72622/csk-vs-gt-final-reserve-day-indian-premier-league-2023']
 for i,link in enumerate(match_links):
     start(link)
     print(i,'completed')
+    break
 
 
