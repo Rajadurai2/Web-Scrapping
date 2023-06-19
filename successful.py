@@ -12,6 +12,7 @@ from collections import defaultdict
 from selenium.webdriver.common.by import By
 import os. path
 import IPython
+import tqdm
 
 def start(url):
 
@@ -178,9 +179,19 @@ def start(url):
     match_commentary_df
 
     toss_string=find_toss()
-    
+    # toss_string='Mumbai Indians have won the toss and have opted to field'
+    # print(toss_string)
     team_a,team_b=team_names()
-    #print('team_a=',team_b)
+    if team_a=='Delhi Capitals':
+        team_a='Delhi Daredevils'
+    if team_b=='Delhi Capitals':
+        team_b='Delhi Daredevils'
+    if team_a=='Punjab Kings':
+        team_a='Kings XI Punjab'
+    if team_b=='Punjab Kings':
+        team_b='Kings XI Punjab'
+    print('team_a=',team_a)
+    print('teamb=',team_b)
     match_commentary_df['match_no']=match_no()
     match_commentary_df['team_a']=team_a
     match_commentary_df['team_b']=team_b
@@ -195,8 +206,8 @@ def start(url):
     match_commentary_df['toss']=find_toss()
     match_commentary_df['winner']=winner
     match_commentary_df['player_of_the_match']=playe_of_the_match
-    match_commentary_df['toss_winner']= 'RCB'                    #short_name(toss_string[:toss_string.find('have')].strip())
-    match_commentary_df['toss_choosen']= 'bat' #toss_string.split(' ')[-1]
+    match_commentary_df['toss_winner']= short_name(toss_string[:toss_string.find('have')].strip())
+    match_commentary_df['toss_choosen']= toss_string.split(' ')[-1]
     match_commentary_df
 
     #csv=match_commentary_df.to_csv(f'{match_name}.csv',index= False)
@@ -212,11 +223,14 @@ def start(url):
 match_links=[]
 with open(os.path.join('match_links','2017_season_match_links.txt')) as f1:
     for line in f1:
-        match_links.append(line.strip())
-
-# print(match_links[4])
-# start(match_links[4])
-for i,link in enumerate(match_links[5:],1):
+        if 'dc' in line.lower() or 'pbks' in line.lower():
+            match_links.append(line.strip())
+print(len(match_links))
+# for i in match_links:
+#     print(i)
+# print(match_links[48])
+# start(match_links[48])
+for i,link in enumerate(match_links[0:],1):
     start(link)
     print(i,'completed')
     
