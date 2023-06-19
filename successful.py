@@ -65,8 +65,11 @@ def start(url):
     'Rajasthan Royals':'RR',
     'Lucknow Super Giants':'LSG',
     'Delhi Capitals':'DC',
+    'Delhi Daredevils':'DD',
     'Royal Challengers Bangalore':'RCB',
-    'Kings XI Punjab':'PBKS'
+    'Kings XI Punjab':'PBKS',
+    'Rising Pune Supergiant':'RPS',
+    'Gujarat Lions':'GL'
     }
         return short_name[team]
 
@@ -177,14 +180,14 @@ def start(url):
     toss_string=find_toss()
     
     team_a,team_b=team_names()
-    #print('team_a=',team_a)
+    #print('team_a=',team_b)
     match_commentary_df['match_no']=match_no()
     match_commentary_df['team_a']=team_a
     match_commentary_df['team_b']=team_b
     match_commentary_df['team_a_11']=find_team_playing11(team_a)
     match_commentary_df['team_b_11']=find_team_playing11(team_b)
-    match_commentary_df['team_a_subs']=find_team_subs(team_a)
-    match_commentary_df['team_b_subs']=find_team_subs(team_b)
+    match_commentary_df['team_a_subs']=None
+    match_commentary_df['team_b_subs']=None
     match_commentary_df['series']=series
     match_commentary_df['season']=year
     match_commentary_df['venue']=venue
@@ -192,12 +195,12 @@ def start(url):
     match_commentary_df['toss']=find_toss()
     match_commentary_df['winner']=winner
     match_commentary_df['player_of_the_match']=playe_of_the_match
-    match_commentary_df['toss_winner']=short_name(toss_string[:toss_string.find('have')].strip())
-    match_commentary_df['toss_choosen']=toss_string.split(' ')[-1]
+    match_commentary_df['toss_winner']= 'RCB'                    #short_name(toss_string[:toss_string.find('have')].strip())
+    match_commentary_df['toss_choosen']= 'bat' #toss_string.split(' ')[-1]
     match_commentary_df
 
     #csv=match_commentary_df.to_csv(f'{match_name}.csv',index= False)
-    match_commentary_df.to_csv(os.path.join('files/2019',f'{match_name}.csv'),index=False)
+    match_commentary_df.to_csv(os.path.join('files/2017',f'{match_name}.csv'),index=False)
     #df=pd.read_csv(f'{match_name}.csv')
 
 #start('https://www.cricbuzz.com/cricket-full-commentary/66169/gt-vs-csk-1st-match-indian-premier-league-2023')
@@ -207,13 +210,13 @@ def start(url):
 #     for line in f1:
 #         match_links.append(line.strip())
 match_links=[]
-with open(os.path.join('match_links','2019_season_match_links.txt')) as f1:
+with open(os.path.join('match_links','2017_season_match_links.txt')) as f1:
     for line in f1:
         match_links.append(line.strip())
 
-# print(match_links[51])
-# start(match_links[51])
-for i,link in enumerate(match_links[52:],1):
+# print(match_links[4])
+# start(match_links[4])
+for i,link in enumerate(match_links[5:],1):
     start(link)
     print(i,'completed')
     
