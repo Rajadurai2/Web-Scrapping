@@ -186,10 +186,13 @@ def start(url):
     #     team_a='Delhi Daredevils'
     # if team_b=='Delhi Capitals':
     #     team_b='Delhi Daredevils'
-    if team_a=='Punjab Kings':
-        team_a='Kings XI Punjab'
-    if team_b=='Punjab Kings':
-        team_b='Kings XI Punjab'
+    
+#used for 2017 -2021 
+
+    # if team_a=='Punjab Kings':
+    #     team_a='Kings XI Punjab'
+    # if team_b=='Punjab Kings':
+    #     team_b='Kings XI Punjab'
     print('team_a=',team_a)
     print('teamb=',team_b)
     match_commentary_df['match_no']=match_no()
@@ -206,38 +209,30 @@ def start(url):
     match_commentary_df['toss']=find_toss()
     match_commentary_df['winner']=winner
     match_commentary_df['player_of_the_match']=playe_of_the_match
-    match_commentary_df['toss_winner']= 'KKR'#short_name(toss_string[:toss_string.find('have')].strip())
-    match_commentary_df['toss_choosen']= 'field'#toss_string.split(' ')[-1]
+    match_commentary_df['toss_winner']= short_name(toss_string[:toss_string.find('have')].strip())
+    match_commentary_df['toss_choosen']= toss_string.split(' ')[-1]
     match_commentary_df
 
     #csv=match_commentary_df.to_csv(f'{match_name}.csv',index= False)
-    match_commentary_df.to_csv(os.path.join('files/2020',f'{match_name}.csv'),index=False)
+    match_commentary_df.to_csv(os.path.join('files/2022',f'{match_name}.csv'),index=False)
     #df=pd.read_csv(f'{match_name}.csv')
-
-#start('https://www.cricbuzz.com/cricket-full-commentary/66169/gt-vs-csk-1st-match-indian-premier-league-2023')
-
 # match_links=[]
-# with open(os.path.join('match_links','2021_season_match_links.txt')) as f1:
+# with open(os.path.join('match_links','2022_season_match_links.txt')) as f1:
 #     for line in f1:
 #         match_links.append(line.strip())
-match_links=[]
-with open(os.path.join('match_links','2020_season_match_links.txt')) as f1:
-    for line in f1:
-        if 'pbks' in line.lower():
-            match_links.append(line.strip())
-# print(len(match_links))
-# for i in match_links:
+#print(len(match_links))
+#for i in match_links:
 #     print(i)
 # print(match_links[12])
-# start(match_links[12]) #11
+start('https://www.cricbuzz.com/cricket-full-commentary/46051/dc-vs-rr-34th-match-indian-premier-league-2022')
 
 
 
 
-for i,link in enumerate(match_links[0:],1):
-    print(link)
-    start(link)
-    print(i,'completed')
+# for i,link in enumerate(match_links[0:],1):
+#     print(link)
+#     start(link)
+#     print(i,'completed')
     
 
 
