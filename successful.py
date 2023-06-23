@@ -3,20 +3,18 @@ import pandas as pd
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import pandas as pd
-import re
 import os
 import requests
 import time
 from selenium.webdriver.chrome.service import Service
-from collections import defaultdict
 from selenium.webdriver.common.by import By
 import os. path
-import IPython
-import tqdm
+
 
 def start(url):
 
     ##Options for chromedriver, when using selenium, does not matter when using Collab since it acts more like a remote machine
+
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -25,36 +23,45 @@ def start(url):
 
     #driver = webdriver.Chrome('chromedriver',options=chrome_options,executable_path='/path/to/chromedriver')
     #driver = webdriver.Chrome(executable_path='/path/to/chromedriver', options=chrome_options)
+    # setting up a Selenium WebDriver instance using Chrome as the browser
+
     service = Service('/path/to/chromedriver')
 
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
 
     cricbuzz_highlights_url=url
-
+    #Navigate the WebDriver instance (driver) to a specific URL
     driver.get(cricbuzz_highlights_url)
-
+    # load the driver contents to beatifulSoup to extract data
     cricbuzz_soup= BeautifulSoup(driver.page_source, 'html.parser')
 
     div_tag=cricbuzz_soup.find_all('div',{'class':"cb-col cb-col-100 ng-scope"})
     
+    # get the match name from url given
 
     match_name=cricbuzz_highlights_url.split('/')[-1]
     match_name
 
+    # get the Series,Year,Statdium,Date of the match
+
     match_metadata_values=[c.next_element.next_element.next_element.text.replace('\xa0','') for c in cricbuzz_soup.find_all('span',{'class':'text-bold'})]
 
-    #print(match_metadata_values)
+    # split the meta values 
 
     year=match_metadata_values[0].split()[-1]
     series="IPL"
     venue=match_metadata_values[1]
     date=match_metadata_values[2]+year
 
+    # find the match no 
+
     def match_no():
         team_names=cricbuzz_soup.find('div',{'class':"cb-billing-plans-text cb-team-lft-item"})
         teams=team_names.text.split(',')[1]
         return teams.strip()[0:3]
+    
+    # convert the full name of the teams to short name 
 
     def short_name(team):
         short_name={'Chennai Super Kings':'CSK',
@@ -74,26 +81,34 @@ def start(url):
     }
         return short_name[team]
 
-    #cb-com-ln ng-binding ng-scope cb-col cb-col-90
+    # find who won the toss as string
+
     def find_toss():
         toss=cricbuzz_soup.find_all('p',{'class':"cb-com-ln ng-binding ng-scope cb-col cb-col-90"})
         for i in toss:
             if "won the toss" in i.get_text().lower():
                 return i.get_text()
             
+    # find the both team names
+
     def team_names():
         team_names=cricbuzz_soup.find('div',{'class':"cb-billing-plans-text cb-team-lft-item"})
         teams=team_names.text.split(',')[0]
         teams=teams.split('vs')
         teams=[team.strip() for team in teams]
         return teams
+    
+    # get the match details
 
     def match_info():
         match_details=cricbuzz_soup.find('div',{'class':"cb-col cb-col-20"})
         match_info=""
         for i in match_details:
             match_info+=i.get_text()
-        return match_info    
+        return match_info
+        
+        # find the substitutes players of the teams
+
 
     def find_team_subs(team):
         preview_obj=cricbuzz_soup.find_all('p',{'class':'cb-com-ln ng-binding ng-scope cb-col cb-col-90'})
@@ -101,11 +116,16 @@ def start(url):
             if 'subs' in i.text.lower() and (team in i.text or short_name(team) in i.text):
                 return i.get_text()
 
+    #find the playing 11 of each teams
+
     def find_team_playing11(team):
         preview_obj=cricbuzz_soup.find_all('p',{'class':'cb-com-ln ng-binding ng-scope cb-col cb-col-90'})
         for i in preview_obj:
             if '(Playing XI)'.casefold() in i.text.casefold() and (team in i.text or short_name(team) in i.text):
                 return i.get_text()
+    
+    # get the player of the match
+
     def get_moth(url):
         cricbuzz_highlights_url=url
         cricbuzz_highlights_url=cricbuzz_highlights_url.replace('cricket-full-commentary','cricket-scores')
@@ -129,6 +149,7 @@ def start(url):
     winner,playe_of_the_match=get_moth(url=url)
 
 
+    # get the Inns played in that match
 
     link_text=[]
     div_tag=cricbuzz_soup.find_all('div',{"class":"cb-hig-pil ng-scope"})
@@ -137,8 +158,10 @@ def start(url):
     link_text=link_text[1:]
     link_text
 
+    # scrap the bal by ball commentry
+
     cricbuzz_page_soup=[]
-    ##Iterate through the link textss
+    ##Iterate through the Inns
     for l in link_text:
             ##Click the innings text
             
@@ -152,8 +175,8 @@ def start(url):
                 cricbuzz_page_soup.append(cricbuzz_soup_inner)
                 print(l,' Analysed')
                 
-            except:
-                print('success')
+            except Exception as e:
+                print(e)
                 #driver.quit()
 
     ##Scraping has been completed
@@ -179,20 +202,9 @@ def start(url):
     match_commentary_df
 
     toss_string=find_toss()
-    # toss_string='Mumbai Indians have won the toss and have opted to field'
-    # print(toss_string)
-    team_a,team_b=team_names()
-    # if team_a=='Delhi Capitals':
-    #     team_a='Delhi Daredevils'
-    # if team_b=='Delhi Capitals':
-    #     team_b='Delhi Daredevils'
     
-#used for 2017 -2021 
-
-    # if team_a=='Punjab Kings':
-    #     team_a='Kings XI Punjab'
-    # if team_b=='Punjab Kings':
-    #     team_b='Kings XI Punjab'
+    team_a,team_b=team_names()
+    
     print('team_a=',team_a)
     print('teamb=',team_b)
     match_commentary_df['match_no']=match_no()
@@ -200,8 +212,9 @@ def start(url):
     match_commentary_df['team_b']=team_b
     match_commentary_df['team_a_11']=find_team_playing11(team_a)
     match_commentary_df['team_b_11']=find_team_playing11(team_b)
-    match_commentary_df['team_a_subs']=None
-    match_commentary_df['team_b_subs']=None
+    # team subs given only for 2023
+    match_commentary_df['team_a_subs']=find_team_subs(team_a)
+    match_commentary_df['team_b_subs']=find_team_subs(team_b)
     match_commentary_df['series']=series
     match_commentary_df['season']=year
     match_commentary_df['venue']=venue
@@ -211,28 +224,22 @@ def start(url):
     match_commentary_df['player_of_the_match']=playe_of_the_match
     match_commentary_df['toss_winner']= short_name(toss_string[:toss_string.find('have')].strip())
     match_commentary_df['toss_choosen']= toss_string.split(' ')[-1]
-    match_commentary_df
+    print(match_commentary_df)
 
-    #csv=match_commentary_df.to_csv(f'{match_name}.csv',index= False)
-    match_commentary_df.to_csv(os.path.join('files/2022',f'{match_name}.csv'),index=False)
-    #df=pd.read_csv(f'{match_name}.csv')
-# match_links=[]
-# with open(os.path.join('match_links','2022_season_match_links.txt')) as f1:
-#     for line in f1:
-#         match_links.append(line.strip())
-#print(len(match_links))
-#for i in match_links:
-#     print(i)
-# print(match_links[12])
+    # store the dataframe to your files csv or xlsx using to_csv or to_excel 
+
+    #match_commentary_df.to_csv(os.path.join('files/2022',f'{match_name}.csv'),index=False)
+    
+
+
+# give the match link to extract the data
+
 start('https://www.cricbuzz.com/cricket-full-commentary/46051/dc-vs-rr-34th-match-indian-premier-league-2022')
 
 
 
 
-# for i,link in enumerate(match_links[0:],1):
-#     print(link)
-#     start(link)
-#     print(i,'completed')
+
     
 
 
